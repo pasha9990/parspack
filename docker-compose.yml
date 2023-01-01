@@ -1,0 +1,45 @@
+version: '3'
+networks:
+  default:
+    external:
+      name: external-example
+services:
+  db:
+    restart: always
+
+    image: mysql:5.7
+    volumes:
+      - db_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: changeme
+    ports:
+      - "3306:3306"
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    ports:
+      - 7777:80
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=db
+
+  parspack:
+    image: product
+    restart: on-failure
+    working_dir: /var/www
+    
+    expose:
+      - 8013
+    ports:
+      - 8013:8013
+    environment:
+      - CONTAINER_ROLE=app
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_USERNAME=root
+      - DB_PASSWORD=changeme
+      - DB_DATABASE=dom
+      - APP_KEY=base64:tFr+ezz2LbOeJj+vgctLh7VLwkAtIy+/VnVAV+KTrdc=
+      - JWT_SECRET=DBQzU4zVQZ4qj0feDFRFkhRDRQMQ0cnDSmL1PaDmJaBAXu1PiI2I0kvly3aGihOU
+volumes:
+  db_data:
